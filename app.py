@@ -114,10 +114,11 @@ class TransformerDecoderLayer(tf.keras.layers.Layer):
             query=embeddings, value=embeddings, key=embeddings,
             attention_mask=combined_mask, training=training)
         out_1 = self.layernorm_1(embeddings + attn_output_1)
-        attn_output_2 = self.attention_2(
+        attn_output_2, attn_scores_2 = self.attention_2(
             query=out_1, value=encoder_output, key=encoder_output,
-            attention_mask=padding_mask, training=training)
+            attention_mask=padding_mask, training=training,return_attention_scores=True)
         out_2 = self.layernorm_2(out_1 + attn_output_2)
+        self.last_attention_scores = attn_scores_2
         ffn_out = self.ffn_layer_1(out_2)
         ffn_out = self.dropout_1(ffn_out, training=training)
         ffn_out = self.ffn_layer_2(ffn_out)
@@ -196,23 +197,79 @@ def generate_caption_from_embedding(model, img, tokenizer, idx2word):
     try:
         img_embed = model.cnn_model(img)
         img_encoded = model.encoder(img_embed, training=False)
+ 
         y_inp = '[start]'
+        words = []
+        attention_maps = []  # one entry per generated word
+ 
         for i in range(MAX_LENGTH - 1):
             tokenized = tokenizer([y_inp])[:, :-1]
             mask = tf.cast(tokenized != 0, tf.int32)
             pred = model.decoder(
                 tokenized, img_encoded, training=False, mask=mask)
+ 
+            # grab the attention weights the decoder just stashed
+            # shape: (1, 8 heads, caption_len, 64 patches) -> average
+            # over heads, take the row for the word we're generating now
+            attn = model.decoder.last_attention_scores  # (1, 8, seq, 64)
+            attn_this_word = tf.reduce_mean(attn[0, :, i, :], axis=0)  # (64,)
+            attention_maps.append(attn_this_word.numpy())
+ 
             pred_idx = np.argmax(pred[0, i, :])
             pred_idx = tf.convert_to_tensor(pred_idx)
             pred_word = idx2word(pred_idx).numpy().decode('utf-8')
+ 
             if pred_word == '[end]':
                 break
+ 
+            words.append(pred_word)
             y_inp += ' ' + pred_word
-        y_inp = y_inp.replace('[start] ', '')
-        return y_inp
+ 
+        caption = ' '.join(words)
+        return caption, words, attention_maps
     except Exception as e:
         st.error(f"Error generating caption: {e}")
         raise e
+
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+ 
+def plot_attention_maps(image, words, attention_maps):
+    """
+    Renders one small subplot per generated word, showing the original
+    image with a heatmap overlay of where the model 'looked' when it
+    generated that word. attention_maps[i] is a flat 64-length array
+    (8x8 grid of image patches) for word i.
+    """
+    image = image.resize((299, 299))
+    image_np = np.array(image)
+ 
+    num_words = len(words)
+    cols = 4
+    rows = int(np.ceil(num_words / cols))
+ 
+    fig, axes = plt.subplots(rows, cols, figsize=(cols * 3, rows * 3))
+    axes = np.array(axes).reshape(-1)
+ 
+    for i, (word, attn) in enumerate(zip(words, attention_maps)):
+        # reshape the 64 flat scores back into the 8x8 grid of patches
+        attn_grid = attn.reshape(8, 8)
+        # upsample the 8x8 grid to 299x299 so it overlays the image cleanly
+        attn_resized = tf.image.resize(
+            attn_grid[..., np.newaxis], (299, 299), method='bilinear'
+        ).numpy().squeeze()
+        attn_resized = attn_resized / (attn_resized.max() + 1e-8)
+ 
+        axes[i].imshow(image_np)
+        axes[i].imshow(attn_resized, cmap=cm.jet, alpha=0.5)
+        axes[i].set_title(word, fontsize=11)
+        axes[i].axis('off')
+ 
+    for j in range(num_words, len(axes)):
+        axes[j].axis('off')
+ 
+    plt.tight_layout()
+    return fig
 
 
 #Streamlit part
@@ -237,8 +294,10 @@ if uploaded_file is not None and not st.session_state.image_uploaded:
         tokenizer, index_to_word, vocabulary_size = load_tokenizer_and_vocab()
         model = load_model(vocabulary_size)
         with st.spinner("Generating caption..."):
-            caption = generate_caption_from_embedding(model, processed_image, tokenizer, index_to_word)
-            st.session_state.caption = caption
+            caption, words, attention_maps = generate_caption_from_embedding(model, processed_image, tokenizer, index_to_word)
+        st.session_state.caption = caption
+        st.session_state.words = words
+        st.session_state.attention_maps = attention_maps
     except Exception as e:
         st.error(f"Error processing image: {e}")
 
@@ -248,3 +307,16 @@ if st.session_state.image_uploaded and st.session_state.image:
     if st.session_state.caption:
         st.success("**Generated Caption**:")
         st.markdown(f"**{st.session_state.caption}**")
+
+        with st.expander("See what the model was looking at (attention maps)"):
+            st.write(
+                "Each tile shows the image with a heatmap of which region "
+                "the model attended to most while generating that word."
+            )
+            fig = plot_attention_maps(
+                st.session_state.image,
+                st.session_state.words,
+                st.session_state.attention_maps
+            )
+            st.pyplot(fig)
+            plt.close(fig)
