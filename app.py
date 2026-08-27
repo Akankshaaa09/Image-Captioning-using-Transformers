@@ -47,8 +47,9 @@ h1, h2, h3 {{ font-family: 'Newsreader', serif !important; color: {BONE} !import
 
 .eyebrow {{
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: {ACCENT};
     margin-bottom: 0.4rem;
@@ -65,7 +66,7 @@ h1, h2, h3 {{ font-family: 'Newsreader', serif !important; color: {BONE} !import
 
 .hero-sub {{
     color: {MUTED};
-    font-size: 1rem;
+    font-size: 1.08rem;
     max-width: 640px;
     margin-bottom: 1.6rem;
 }}
@@ -73,23 +74,25 @@ h1, h2, h3 {{ font-family: 'Newsreader', serif !important; color: {BONE} !import
 .meta-pill {{
     display: inline-block;
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
+    font-size: 0.85rem;
+    font-weight: 500;
     color: {MUTED};
     border: 1px solid {BORDER};
     border-radius: 999px;
-    padding: 3px 11px;
+    padding: 4px 12px;
     margin: 0 6px 6px 0;
 }}
 
 .word-chip {{
     display: inline-block;
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
+    font-size: 0.85rem;
+    font-weight: 500;
     color: {ACCENT};
     background-color: rgba(63, 107, 74, 0.08);
     border: 1px solid {BORDER};
     border-radius: 6px;
-    padding: 2px 8px;
+    padding: 3px 9px;
     margin-top: 6px;
 }}
 
@@ -99,13 +102,26 @@ h1, h2, h3 {{ font-family: 'Newsreader', serif !important; color: {BONE} !import
     border-radius: 12px !important;
 }}
 
+[data-testid="stFileUploaderDropzone"] button {{
+    background-color: {INK} !important;
+    color: {BONE} !important;
+    border: 1px solid {BORDER} !important;
+    font-weight: 500 !important;
+}}
+[data-testid="stFileUploaderDropzone"] button:hover {{
+    border-color: {ACCENT} !important;
+    color: {ACCENT} !important;
+}}
+
 .stButton > button {{
     background-color: transparent;
     color: {ACCENT};
     border: 1px solid {BORDER};
     border-radius: 8px;
     font-family: 'Inter', sans-serif;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 8px 16px;
 }}
 .stButton > button:hover {{
     border-color: {ACCENT};
@@ -136,14 +152,15 @@ h1, h2, h3 {{ font-family: 'Newsreader', serif !important; color: {BONE} !import
 .nav-logo span {{ color: {ACCENT}; }}
 .nav-link {{
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.78rem;
-    color: {MUTED};
-    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: {MUTED} !important;
+    text-decoration: none !important;
     border: 1px solid {BORDER};
     border-radius: 999px;
-    padding: 5px 13px;
+    padding: 6px 14px;
 }}
-.nav-link:hover {{ color: {BONE}; border-color: {ACCENT}; }}
+.nav-link:hover {{ color: {BONE} !important; border-color: {ACCENT}; }}
 
 /* two-tone hero headline */
 .hero-title-2 {{
@@ -161,16 +178,16 @@ h1, h2, h3 {{ font-family: 'Newsreader', serif !important; color: {BONE} !import
 .cta-pill {{
     display: inline-block;
     font-family: 'Inter', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 500;
-    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none !important;
     border-radius: 999px;
-    padding: 9px 18px;
+    padding: 10px 20px;
     margin-right: 10px;
 }}
-.cta-pill.solid {{ background-color: {ACCENT}; color: {INK}; }}
-.cta-pill.outline {{ color: {BONE}; border: 1px solid {BORDER}; }}
-.cta-pill.outline:hover {{ border-color: {ACCENT}; color: {ACCENT}; }}
+.cta-pill.solid {{ background-color: {ACCENT}; color: {INK} !important; }}
+.cta-pill.outline {{ color: {BONE} !important; border: 1px solid {BORDER}; }}
+.cta-pill.outline:hover {{ border-color: {ACCENT}; color: {ACCENT} !important; }}
 
 /* browser-style dot strip atop the framed mockup */
 .frame-strip {{
@@ -182,7 +199,7 @@ h1, h2, h3 {{ font-family: 'Newsreader', serif !important; color: {BONE} !import
 .frame-dot {{ width: 7px; height: 7px; border-radius: 50%; background: {MUTED}; opacity: 0.4; }}
 .frame-label {{
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     color: {MUTED};
     margin-left: 6px;
 }}
@@ -498,14 +515,14 @@ def render_pinned_image_html(image, words, attn_maps, bleu_val=BLEU_VAL_SCORE):
         markers_html += (
             f'<div style="position:absolute; left:{x:.1f}%; top:{label_top:.1f}%; '
             f'transform:translate(-50%, -50%); font-family:\'IBM Plex Mono\',monospace; '
-            f'font-size:11px; color:{BONE}; background:rgba(18,25,43,0.85); '
+            f'font-size:13px; font-weight:500; color:{BONE}; background:rgba(255,255,255,0.92); '
             f'border:1px solid {BORDER}; border-radius:5px; padding:1px 6px; z-index:4; '
             f'white-space:nowrap;">{word}</div>'
         )
 
     extra_note = ""
     if len(words) > MAX_PINNED_WORDS:
-        extra_note = f'<div style="font-family:\'IBM Plex Mono\',monospace; font-size:11px; color:{MUTED}; margin-top:6px;">+{len(words) - MAX_PINNED_WORDS} more words - full breakdown below</div>'
+        extra_note = f'<div style="font-family:\'IBM Plex Mono\',monospace; font-size:13px; color:{MUTED}; margin-top:6px;">+{len(words) - MAX_PINNED_WORDS} more words - full breakdown below</div>'
 
     html = f"""
     <div style="background:{INK}; border-radius:14px; padding:16px;">
@@ -513,8 +530,8 @@ def render_pinned_image_html(image, words, attn_maps, bleu_val=BLEU_VAL_SCORE):
       <div style="position:relative; display:inline-block; width:100%;">
         <div style="position:absolute; top:6px; left:6px; width:14px; height:14px; border-top:1px solid {MUTED}; border-left:1px solid {MUTED}; z-index:5;"></div>
         <div style="position:absolute; bottom:6px; right:6px; width:14px; height:14px; border-bottom:1px solid {MUTED}; border-right:1px solid {MUTED}; z-index:5;"></div>
-        <div style="position:absolute; top:-10px; right:6px; background:{ACCENT}; color:{INK}; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:500; border-radius:6px; padding:4px 9px; z-index:6;">BLEU-4 (val) &middot; {bleu_val}</div>
-        <div style="position:absolute; top:-10px; left:6px; background:{PANEL}; border:1px solid {BORDER}; color:{BONE}; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:500; border-radius:6px; padding:4px 9px; z-index:6;">beam width 3</div>
+        <div style="position:absolute; top:-10px; right:6px; background:{ACCENT}; color:{INK}; font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600; border-radius:6px; padding:5px 10px; z-index:6;">BLEU-4 (val) &middot; {bleu_val}</div>
+        <div style="position:absolute; top:-10px; left:6px; background:{PANEL}; border:1px solid {BORDER}; color:{BONE}; font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600; border-radius:6px; padding:5px 10px; z-index:6;">beam width 3</div>
         <div style="position:relative; border:1px solid {BORDER}; border-radius:8px; overflow:hidden;">
           <img src="data:image/png;base64,{b64}" style="width:100%; display:block;" />
           {markers_html}
@@ -641,7 +658,7 @@ with st.container(border=True):
     )
 
     st.markdown(
-        f'<div style="font-family:\'IBM Plex Mono\',monospace; font-size:11px; color:{MUTED}; margin:10px 0 4px 0;">OR TRY AN EXAMPLE</div>',
+        f'<div style="font-family:\'IBM Plex Mono\',monospace; font-size:13px; font-weight:500; color:{MUTED}; margin:10px 0 4px 0;">OR TRY AN EXAMPLE</div>',
         unsafe_allow_html=True
     )
     example_cols = st.columns(len(EXAMPLE_IMAGES))
@@ -650,7 +667,7 @@ with st.container(border=True):
             try:
                 st.image(path, use_container_width=True)
             except Exception:
-                st.markdown(f'<div style="color:{MUTED}; font-size:11px;">missing: {path}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="color:{MUTED}; font-size:13px;">missing: {path}</div>', unsafe_allow_html=True)
             if st.button(label, key=f"example_{label}"):
                 try:
                     example_image = Image.open(path)
