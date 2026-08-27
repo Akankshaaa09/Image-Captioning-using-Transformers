@@ -25,14 +25,14 @@ WEIGHTS_FILENAME = "model.weights.h5"  # Keras 3 requires this exact suffix
 BLEU_VAL_SCORE = "0.0796"
 
 # ---------------------------------------------------------------------------
-# Design tokens - technical blueprint direction
+# Design tokens - light, pale-sage direction (no dark backgrounds anywhere)
 # ---------------------------------------------------------------------------
-INK = "#12192B"
-PANEL = "#1E2A45"
-BORDER = "#35456B"
-ACCENT = "#D6C84A"
-BONE = "#EDEBE3"
-MUTED = "#8FA0C4"
+INK = "#F1F3EE"       # page background - pale sage-white
+PANEL = "#FFFFFF"      # card background - pure white, floats on the page
+BORDER = "#DEE3D9"     # light sage-grey border
+ACCENT = "#3F6B4A"     # deep leaf green
+BONE = "#1E211C"       # primary text - near-black
+MUTED = "#68705F"      # secondary text - muted sage-grey
 
 st.set_page_config(page_title="Image Captioning - Transformer", layout="wide")
 
@@ -86,7 +86,7 @@ h1, h2, h3 {{ font-family: 'Newsreader', serif !important; color: {BONE} !import
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.72rem;
     color: {ACCENT};
-    background-color: rgba(214, 200, 74, 0.08);
+    background-color: rgba(63, 107, 74, 0.08);
     border: 1px solid {BORDER};
     border-radius: 6px;
     padding: 2px 8px;
@@ -110,7 +110,7 @@ h1, h2, h3 {{ font-family: 'Newsreader', serif !important; color: {BONE} !import
 .stButton > button:hover {{
     border-color: {ACCENT};
     color: {BONE};
-    background-color: rgba(214, 200, 74, 0.06);
+    background-color: rgba(63, 107, 74, 0.06);
 }}
 
 [data-testid="stImage"] img {{
@@ -179,7 +179,7 @@ h1, h2, h3 {{ font-family: 'Newsreader', serif !important; color: {BONE} !import
     gap: 6px;
     margin-bottom: 10px;
 }}
-.frame-dot {{ width: 7px; height: 7px; border-radius: 50%; background: {BORDER}; }}
+.frame-dot {{ width: 7px; height: 7px; border-radius: 50%; background: {MUTED}; opacity: 0.4; }}
 .frame-label {{
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.7rem;
@@ -652,8 +652,14 @@ with st.container(border=True):
             except Exception:
                 st.markdown(f'<div style="color:{MUTED}; font-size:11px;">missing: {path}</div>', unsafe_allow_html=True)
             if st.button(label, key=f"example_{label}"):
-                run_captioning(Image.open(path))
-                st.rerun()
+                try:
+                    example_image = Image.open(path)
+                except FileNotFoundError:
+                    st.warning(f"'{path}' isn't in the repo yet — upload it to your examples/ folder on GitHub, then try again.")
+                    example_image = None
+                if example_image is not None:
+                    run_captioning(example_image)
+                    st.rerun()
 
     if st.button("Clear and upload new image"):
         st.session_state.image_uploaded = False
