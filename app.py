@@ -118,6 +118,92 @@ h1, h2, h3 {{ font-family: 'Newsreader', serif !important; color: {BONE} !import
     border: 1px solid {BORDER};
 }}
 
+/* nav bar */
+.nav-row {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 14px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid {BORDER};
+}}
+.nav-logo {{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: {BONE};
+    letter-spacing: 0.04em;
+}}
+.nav-logo span {{ color: {ACCENT}; }}
+.nav-link {{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: {MUTED};
+    text-decoration: none;
+    border: 1px solid {BORDER};
+    border-radius: 999px;
+    padding: 5px 13px;
+}}
+.nav-link:hover {{ color: {BONE}; border-color: {ACCENT}; }}
+
+/* two-tone hero headline */
+.hero-title-2 {{
+    font-family: 'Newsreader', serif;
+    font-weight: 600;
+    font-size: 2.6rem;
+    line-height: 1.18;
+    color: {BONE};
+    margin-bottom: 0.6rem;
+}}
+.hero-title-2 .accent {{ color: {ACCENT}; }}
+
+/* CTA pill links (real destinations, styled like buttons) */
+.cta-row {{ margin: 1.1rem 0 1.8rem 0; }}
+.cta-pill {{
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 999px;
+    padding: 9px 18px;
+    margin-right: 10px;
+}}
+.cta-pill.solid {{ background-color: {ACCENT}; color: {INK}; }}
+.cta-pill.outline {{ color: {BONE}; border: 1px solid {BORDER}; }}
+.cta-pill.outline:hover {{ border-color: {ACCENT}; color: {ACCENT}; }}
+
+/* browser-style dot strip atop the framed mockup */
+.frame-strip {{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}}
+.frame-dot {{ width: 7px; height: 7px; border-radius: 50%; background: {BORDER}; }}
+.frame-label {{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: {MUTED};
+    margin-left: 6px;
+}}
+
+/* framed mockup container (native Streamlit bordered container) */
+[data-testid="stVerticalBlockBorderWrapper"] {{
+    background-color: {PANEL} !important;
+    border: 1px solid {BORDER} !important;
+    border-radius: 16px !important;
+    padding: 6px;
+}}
+
+/* bottom footer pill row */
+.footer-row {{
+    display: flex;
+    gap: 10px;
+    margin-top: 1.8rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid {BORDER};
+}}
+
 hr {{ border-color: {BORDER}; }}
 </style>
 """, unsafe_allow_html=True)
@@ -428,6 +514,7 @@ def render_pinned_image_html(image, words, attn_maps, bleu_val=BLEU_VAL_SCORE):
         <div style="position:absolute; top:6px; left:6px; width:14px; height:14px; border-top:1px solid {MUTED}; border-left:1px solid {MUTED}; z-index:5;"></div>
         <div style="position:absolute; bottom:6px; right:6px; width:14px; height:14px; border-bottom:1px solid {MUTED}; border-right:1px solid {MUTED}; z-index:5;"></div>
         <div style="position:absolute; top:-10px; right:6px; background:{ACCENT}; color:{INK}; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:500; border-radius:6px; padding:4px 9px; z-index:6;">BLEU-4 (val) &middot; {bleu_val}</div>
+        <div style="position:absolute; top:-10px; left:6px; background:{PANEL}; border:1px solid {BORDER}; color:{BONE}; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:500; border-radius:6px; padding:4px 9px; z-index:6;">beam width 3</div>
         <div style="position:relative; border:1px solid {BORDER}; border-radius:8px; overflow:hidden;">
           <img src="data:image/png;base64,{b64}" style="width:100%; display:block;" />
           {markers_html}
@@ -482,31 +569,44 @@ def typewriter_reveal(text, height=70):
 # ---------------------------------------------------------------------------
 # Layout
 # ---------------------------------------------------------------------------
-st.markdown('<div class="eyebrow">ENCODER&ndash;DECODER &middot; TRAINED FROM SCRATCH</div>', unsafe_allow_html=True)
-st.markdown('<div class="hero-title">What does the model see?</div>', unsafe_allow_html=True)
+GITHUB_URL = "https://github.com/Akankshaaa09/Image-Captioning-using-Transformers"
+HF_MODEL_URL = f"https://huggingface.co/{HF_REPO_ID}"
+
 st.markdown(
-    '<div class="hero-sub">Upload an image. A transformer trained from scratch on COCO - '
-    'InceptionV3 encoder, 8-head cross-attention decoder - describes it, then pins each '
-    'word to exactly where it looked.</div>',
+    f'<div class="nav-row">'
+    f'<div class="nav-logo">IC<span>.</span>TRANSFORMER</div>'
+    f'<a class="nav-link" href="{GITHUB_URL}" target="_blank">GitHub &#8599;</a>'
+    f'</div>',
     unsafe_allow_html=True
 )
 
-uploaded_file = st.file_uploader(
-    "Drop an image, or click to browse",
-    type=["jpg", "jpeg", "png"],
-    key="file_uploader"
+st.markdown('<div class="eyebrow">ENCODER&ndash;DECODER &middot; TRAINED FROM SCRATCH</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="hero-title-2">See what the <span class="accent">model sees.</span></div>',
+    unsafe_allow_html=True
+)
+st.markdown(
+    '<div class="hero-sub">A transformer trained from scratch on COCO - InceptionV3 encoder, '
+    '8-head cross-attention decoder - describes your image, then pins each word to exactly '
+    'where it looked.</div>',
+    unsafe_allow_html=True
+)
+st.markdown(
+    f'<div class="cta-row">'
+    f'<a class="cta-pill solid" href="#try-it">Try it below &darr;</a>'
+    f'<a class="cta-pill outline" href="{HF_MODEL_URL}" target="_blank">Model card &#8599;</a>'
+    f'</div>',
+    unsafe_allow_html=True
 )
 
-if st.button("Clear and upload new image"):
-    st.session_state.image_uploaded = False
-    st.session_state.caption = ""
-    st.session_state.image = None
-    st.session_state.words = []
-    st.session_state.attention_maps = []
-    st.rerun()
+EXAMPLE_IMAGES = [
+    ("coffee", "examples/coffee.jpg"),
+    ("airplane", "examples/airplane.jpg"),
+    ("dog", "examples/dog.jpg"),
+]
 
-if uploaded_file is not None and not st.session_state.image_uploaded:
-    image = Image.open(uploaded_file)
+
+def run_captioning(image):
     st.session_state.image = image
     st.session_state.image_uploaded = True
 
@@ -522,37 +622,90 @@ if uploaded_file is not None and not st.session_state.image_uploaded:
     st.session_state.words = words
     st.session_state.attention_maps = attention_maps
 
-if st.session_state.image_uploaded and st.session_state.image and st.session_state.caption:
-    pinned_html = render_pinned_image_html(
-        st.session_state.image, st.session_state.words, st.session_state.attention_maps
-    )
-    st.markdown(pinned_html, unsafe_allow_html=True)
 
-    typewriter_reveal(st.session_state.caption)
+st.markdown('<div id="try-it"></div>', unsafe_allow_html=True)
 
+with st.container(border=True):
     st.markdown(
-        f'<span class="meta-pill">beam search &middot; w3</span>'
-        f'<span class="meta-pill">InceptionV3 encoder</span>'
-        f'<span class="meta-pill">vocab 11,691</span>',
+        '<div class="frame-strip">'
+        '<div class="frame-dot"></div><div class="frame-dot"></div><div class="frame-dot"></div>'
+        '<div class="frame-label">live demo</div>'
+        '</div>',
         unsafe_allow_html=True
     )
 
-    with st.expander("Full attention detail (per-word heatmaps)"):
-        st.caption(
-            "The pins above show each word's single peak attention point. "
-            "These tiles show the full heatmap each pin was simplified from."
-        )
-        image_299 = st.session_state.image.resize((299, 299))
-        words = st.session_state.words
-        attn_maps = st.session_state.attention_maps
+    uploaded_file = st.file_uploader(
+        "Drop an image, or click to browse",
+        type=["jpg", "jpeg", "png"],
+        key="file_uploader"
+    )
 
-        tiles_per_row = 4
-        for row_start in range(0, len(words), tiles_per_row):
-            row_words = words[row_start:row_start + tiles_per_row]
-            row_attn = attn_maps[row_start:row_start + tiles_per_row]
-            cols = st.columns(tiles_per_row)
-            for col, word, attn in zip(cols, row_words, row_attn):
-                with col:
-                    tile = render_attention_tile(image_299, attn)
-                    st.image(tile, use_container_width=True)
-                    st.markdown(f'<span class="word-chip">{word}</span>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div style="font-family:\'IBM Plex Mono\',monospace; font-size:11px; color:{MUTED}; margin:10px 0 4px 0;">OR TRY AN EXAMPLE</div>',
+        unsafe_allow_html=True
+    )
+    example_cols = st.columns(len(EXAMPLE_IMAGES))
+    for col, (label, path) in zip(example_cols, EXAMPLE_IMAGES):
+        with col:
+            try:
+                st.image(path, use_container_width=True)
+            except Exception:
+                st.markdown(f'<div style="color:{MUTED}; font-size:11px;">missing: {path}</div>', unsafe_allow_html=True)
+            if st.button(label, key=f"example_{label}"):
+                run_captioning(Image.open(path))
+                st.rerun()
+
+    if st.button("Clear and upload new image"):
+        st.session_state.image_uploaded = False
+        st.session_state.caption = ""
+        st.session_state.image = None
+        st.session_state.words = []
+        st.session_state.attention_maps = []
+        st.rerun()
+
+    if uploaded_file is not None and not st.session_state.image_uploaded:
+        image = Image.open(uploaded_file)
+        run_captioning(image)
+
+    if st.session_state.image_uploaded and st.session_state.image and st.session_state.caption:
+        pinned_html = render_pinned_image_html(
+            st.session_state.image, st.session_state.words, st.session_state.attention_maps
+        )
+        st.markdown(pinned_html, unsafe_allow_html=True)
+
+        typewriter_reveal(st.session_state.caption)
+
+        st.markdown(
+            f'<span class="meta-pill">beam search &middot; w3</span>'
+            f'<span class="meta-pill">InceptionV3 encoder</span>'
+            f'<span class="meta-pill">vocab 11,691</span>',
+            unsafe_allow_html=True
+        )
+
+        with st.expander("Full attention detail (per-word heatmaps)"):
+            st.caption(
+                "The pins above show each word's single peak attention point. "
+                "These tiles show the full heatmap each pin was simplified from."
+            )
+            image_299 = st.session_state.image.resize((299, 299))
+            words = st.session_state.words
+            attn_maps = st.session_state.attention_maps
+
+            tiles_per_row = 4
+            for row_start in range(0, len(words), tiles_per_row):
+                row_words = words[row_start:row_start + tiles_per_row]
+                row_attn = attn_maps[row_start:row_start + tiles_per_row]
+                cols = st.columns(tiles_per_row)
+                for col, word, attn in zip(cols, row_words, row_attn):
+                    with col:
+                        tile = render_attention_tile(image_299, attn)
+                        st.image(tile, use_container_width=True)
+                        st.markdown(f'<span class="word-chip">{word}</span>', unsafe_allow_html=True)
+
+st.markdown(
+    f'<div class="footer-row">'
+    f'<a class="cta-pill outline" href="{GITHUB_URL}" target="_blank">View source &#8599;</a>'
+    f'<a class="cta-pill outline" href="{HF_MODEL_URL}" target="_blank">Model weights &#8599;</a>'
+    f'</div>',
+    unsafe_allow_html=True
+)
