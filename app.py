@@ -601,8 +601,8 @@ st.markdown(
 
 EXAMPLE_IMAGES = [
     ("coffee", "examples/coffee.jpg"),
-    ("airplane", "examples/airplane.jpg"),
     ("dog", "examples/dog.jpg"),
+    ("tennis", "examples/tennis.jpg"),
 ]
 
 
